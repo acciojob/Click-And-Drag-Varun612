@@ -1,29 +1,34 @@
 // Your code here.
 const items=document.querySelectorAll('.item');
-let isDragging = false;
-let currentItem, offsetX, offsetY;
-items.forEach((item) => {
-	// const item = document.querySelector('.item');
+let currentItem=null, offsetX, offsetY;
+items.forEach(item => {
 	item.addEventListener('mousedown', (e) => {
-		isDragging=true;
 		currentItem=item;
-		offsetX = e.clientX-currentItem.getBoundingClientRect().left;
-		offsetY = e.clientY-currentItem.getBoundingClientRect().top;
+		offsetX = e.clientX - currentItem.getBoundingClientRect().left;
+		offsetY = e.clientY - currentItem.getBoundingClientRect().top;
 
-		currentItem.classList.add("active");
+		document.addEventListener('mousemove', onMouseMove);
 	});
-		
 });
-document.addEventListener('mousemove', (e) => {
-	if(isDragging && currentItem){
-		currentItem.style.left = (e.clientX-offsetX) + 'px';
-		currentItem.style.top = (e.clientY-offsetY) + 'px';
-	}
-});
-document.addEventListener('mouseup', () => {
+
+function onMouseMove(e) {
 	if(currentItem) {
-		currentItem.classList.remove('active');
+		const container = document.querySelector('.items');
+		const containerRect = container.getBoundingClientRect();
+		let newX = e.clientX - containerRect.left - offsetX;
+		let newY = e.clientY - containerRect.top - offsetY;
+
+		//Boundary conditions
+		newX = Math.max(0, Math.min(newX, containerRect.width-currentItem.offsetWidth));
+		newY = Math.max(0, Math.min(newY, containerRect.height-currentItem.offsetHeight));
+
+		currentItem.style.left = newX+'px';
+		currentItem.style.top = newY+'px';
 	}
-	isDragging=false;
+}
+
+document.addEventListener('mouseup', () => {
 	currentItem=null;
+	document.removeEventListener('mousemove', onMouseMove);
 });
+
